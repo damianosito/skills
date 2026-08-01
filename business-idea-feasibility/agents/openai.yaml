@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Idea Feasibility"
+  short_description: "Brutally honest startup feasibility reports"
+  default_prompt: "Use $business-idea-feasibility to evaluate this business or app idea with live research, founder fit, costs, risks, and a Red, Amber, or Green verdict."
