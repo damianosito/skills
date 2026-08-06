@@ -492,6 +492,3 @@ Here is the idea:
 ```
 
 ---
-Tip 1: For extra token savings uploading this as a .md file. 
-
-Tip 2: For founder fit give it your most recent resume/cv as well s link to your LinkedIn profile  
