@@ -4,159 +4,155 @@ description: Map out an effort too big for one session as a shared map of decisi
 disable-model-invocation: true
 ---
 
-A loose idea has arrived, too big for one agent session, and wrapped in fog: the way from here to the **destination** is not visible yet. Mapping out finds that way instead of charging at the destination. This skill charts the way as a **shared map** on the issue tracker, then works its **decision tickets** (questions whose resolution is a decision, not slices of a build) one at a time, until the route is clear or the evidence says the destination is not worth reaching.
+# Mapout
 
-The destination varies per effort and naming it is the first act of charting: a spec to hand off, a decision to lock, or a change made in place. The map is domain-agnostic.
+You have been handed something big and blurry: an effort that will take many sessions, where nobody can yet see the route to the end. Mapout breaks it into a **map**, one issue on the repo's tracker, with **tickets** underneath, where each ticket is a question that ends in a decision. Sessions take one ticket each. The map is finished when nothing is left to decide, or when the evidence says the effort should stop.
 
-## Plan, don't do
+## What the map is for
 
-Each ticket resolves a decision. The map is done when nothing is left to decide before someone goes and does the thing. The pull to just do the work is the signal you have reached the edge of the map. An effort can override this in its **Notes**; absent that, produce decisions, not deliverables.
+- **Decisions only.** A ticket closes with a decision, never with built work. The urge to start building is the sign that planning is done and the map should close through its finish line. Ground rules can allow building inside the map for a given effort; otherwise do not.
+- **The destination comes first.** Name what done looks like before anything else: a spec to hand over, a decision to lock, or a change to make in place. Everything on the map is measured against it.
+- **One ticket per session.** Research tickets are the exception, because subagents resolve them on their own.
+- **Names, never numbers.** When you speak to the human, call maps and tickets by their titles, with the link inside the title. Bare issue numbers mean nothing to a reader.
 
-## Posture
+## How hard to push
 
-Constructive with teeth. Grill-me is relentless; mapout is measured:
+Grill-me is relentless. Mapout pushes less, but it does push:
 
-- **Prior art first.** Before the first question, know who has built this or solved it, and what the repo already constrains. Named prior art goes into round 1 bodies.
-- **One kill question** when the destination is named: what makes reaching it worth the journey, given what already exists. Park and redraw are real options on that pop-up.
-- **One challenge per round.** One question each round tests something the human has asserted, with the evidence against it in the body. Recommend against them when the evidence says so.
-- **One pushback per hand-wave.** An answer of "later" or "we'll see" on a question that gates the destination is re-asked once, sharpened, next round. If it stands, record it under **Risk accepted** in the resolution and move on.
-- **Narrate honestly between rounds.** One line per answered question: what it settled, and whether the answer held up. Credit a strong answer; name a weak one as weak.
+- Research prior art before asking anything, and put what you found into the first round's question bodies.
+- The round that names the destination includes a kill question: given what already exists, why is this journey worth making? Park and redraw sit on that pop-up as real choices.
+- Every round contains exactly one challenge: a question that tests something the human has claimed, with the counter-evidence in the body. Recommend against them when the evidence warrants it.
+- When the human deflects a question that gates the destination with "later" or "we'll see", ask it once more next round, sharper. If they hold their position, write it under Risk carried in the resolution and move on.
+- Between rounds, narrate one line per answered question: what it settled and whether the answer held up. Say when an answer was strong and when it was thin.
 
-## Rounds
+## Pop-up rounds
 
-Every question to the human goes through the **AskUserQuestion** tool, never as markdown in the chat.
+Ask the human through the **AskUserQuestion** tool, never as markdown in the chat.
 
-- A **round** is the whole **frontier**: every question whose prerequisites are already settled. Up to four questions per call; a larger frontier takes several calls back to back, then recompute. A question that depends on another still open this round belongs to a later round.
-- Each question: a header of at most twelve characters; a body that carries the evidence (repo facts, docs, prior art) so the human decides on facts, not on your framing; two to four options, the recommended one first with `(Recommended)` on its label; each option's description names its trade-off in one line. The tool adds **Other** for free text.
-- Options are concrete candidates, even for names and numbers, so Other is the escape hatch and not the default.
-- Facts are yours to find, decisions are theirs. When a question needs a fact from the environment, dispatch a subagent with an explicit `model` and ask the rest of the frontier now; only the questions downstream of that fact wait.
-- An Other answer that is a question back to you gets answered in narration, then the question is re-asked.
-- Each round carries the challenge (see Posture).
-- A ticket's rounds end when its frontier is empty. Then one **confirm gate** pop-up: record the resolution as stated (Recommended) / amend it / keep asking / park this ticket. Nothing is written to the tracker before that gate.
+- A **round** is every question you can ask right now: the ones whose prerequisites are settled. Put up to four questions in one pop-up; a bigger round takes several pop-ups back to back before you recompute. A question that depends on another question in the same round waits for the next round.
+- Per question: a header of twelve characters or fewer; a body carrying the evidence you found (repo facts, docs, prior art) so the human decides on facts rather than on your framing; two to four options; the recommended option first with `(Recommended)` on its label; each option's description stating its trade-off in one line. The tool adds **Other** for free text.
+- Give concrete candidates even for names and numbers, so Other is the escape hatch and not the default.
+- You find facts, the human makes decisions. When a question needs a fact from the environment, send a subagent with an explicit `model` for it and ask the rest of the round now. Only the questions that depend on that fact wait.
+- When the human's Other text is a question back to you, answer it in narration and re-ask.
+- A ticket's rounds end when no questions remain. Then one **confirm gate** pop-up: record the resolution as stated (Recommended) / amend it / ask more / park this ticket. Write nothing to the tracker before the human passes this gate.
 
-## Refer by name
+## The map on the tracker
 
-Every map and ticket is an issue, so it has a name: its title. In everything the human reads, refer to it by name, with the link riding inside the name. A wall of `#42, #43` is illegible.
+The map is one issue labelled `mapout:map`. Tickets are its child issues. Each decision lives in its ticket; the map holds a one-line gist and a link.
 
-## The Map
+**Which tracker.** See [trackers.md](trackers.md): GitHub issues when the repo has a GitHub remote and `gh` is signed in; local markdown otherwise. If Ground rules name a tracker, that wins.
 
-The map is a single issue labelled `mapout:map`; its tickets are child issues. The map is an **index**, not a store: a decision lives in exactly one place, its ticket, and the map gists and links.
+**Editing the map body.** Other sessions edit the tracker at the same time. Re-read the body immediately before you change it, and change it once per session, at the end. At the start of every session, **reconcile**: every closed ticket missing from Settled gets its gist line added. Research subagents and interrupted sessions leave these gaps.
 
-**Tracker.** Read [trackers.md](trackers.md): GitHub issues when the repo has a GitHub remote and `gh` is authenticated, local markdown otherwise. A map's Notes may name a different tracker; then Notes wins.
-
-**Map edits.** Other sessions edit the tracker concurrently. Re-read the map body immediately before every edit, and edit it once per session, at the end. On every load, **reconcile**: any closed child with no line in Decisions so far gets its gist appended (research subagents and interrupted sessions leave these).
-
-### The map body
+### Map body
 
 ```markdown
 ## Destination
 
-<what reaching the end looks like: the spec, decision, or change. One or two lines. The last line records the outcome once the map closes: handed off / done in place / parked, with a link.>
+<What done looks like, in one or two lines. When the map closes, the last line records the outcome with a link: handed off / done in place / parked.>
 
-## Notes
+## Ground rules
 
-<domain; skills every session should consult; standing preferences for this effort>
+<Domain. Skills every session should load. Standing preferences for this effort.>
 
-## Decisions so far
+## Settled
 
-- [<closed ticket title>](link): <one-line gist>
+- [<ticket title>](link): <one-line gist of the decision>
 
-## Risks accepted
+## Risks carried
 
-- [<ticket title>](link): <the gate question that was deflected, in one line>
+- [<ticket title>](link): <the gating question the human deflected, in one line>
 
-## Not yet specified
+## Still foggy
 
-<!-- fog: in-scope questions you cannot yet phrase sharply; graduates to tickets as the frontier advances -->
+<!-- In-scope questions you cannot yet phrase sharply. Becomes tickets as decisions land. -->
 
-## Out of scope
+## Ruled out
 
-<!-- work ruled beyond the destination; closed, never graduates -->
+<!-- Work beyond the destination. Closed for this effort; never becomes a ticket. -->
 ```
 
-### Tickets
+### Ticket body
 
-Each ticket is a child issue of the map, sized to one agent session:
+A ticket is sized to one session.
 
 ```markdown
-## Question
+## Decide
 
-<the decision or investigation this ticket resolves>
+<the question this ticket answers>
 
-Destination risk: <high | low>  <!-- high when the answer could redraw or kill the destination -->
+Could redraw the destination: <yes | no>
 ```
 
-Labels: `mapout:<type>` (research, prototype, grilling, task) and `mapout:hitl` on every ticket that needs a human, so an unattended run can filter them out of the frontier.
+Labels: `mapout:<kind>` with kind one of `research`, `prototype`, `grilling`, `task`, plus `mapout:attended` on every ticket that needs the human present, so unattended runs can skip them.
 
-**Claim.** Assign the ticket to the dev driving the map **first**, before any work, and comment `claimed <ISO time>`. An open, unassigned ticket is unclaimed. A ticket assigned with no comment in the last 24 hours is stale: read its comments, then claim it. **Release.** A session that ends with its ticket unresolved comments where it got to and unassigns.
+**Claiming.** Before doing anything on a ticket, assign it to the dev running the map and comment `claimed <ISO time>`. Unassigned means free. Assigned with no comment in the last 24 hours means abandoned: read its comments, then claim it. **Releasing.** If your session ends with the ticket unresolved, comment where you got to and unassign.
 
-**Blocking** uses the tracker's native dependency relationship. A ticket is **unblocked** when every blocker is closed; the **frontier** is the open, unblocked, unclaimed children.
+**Blocking.** Use the tracker's native blocked-by relation. A ticket with no open blockers is ready; the **frontier** is every ready, unclaimed ticket.
 
-**Overrun.** A ticket that will not resolve in one session is split: resolve the part that settled, open a child ticket for the rest with a link both ways, and say "split" in the resolution.
+**Splitting.** A ticket that will not finish in one session gets split: record the part that is settled, open a child ticket for the remainder, link both ways, and write "split" in the resolution.
 
-### Resolution
+### Resolution comment
 
-Post this comment, then close the ticket. The **Decision** line is the gist copied to the map.
+Post this, then close the ticket. The Decision line becomes the gist on the map.
 
 ```markdown
 ## Resolution
 **Decision:** <one line>
 **Why:** <evidence and reasoning, short>
-**Rejected:** <each option considered, one line, why not>
+**Rejected:** <each option considered, one line each, with why not>
 **Strongest objection:** <the challenge raised and how it was answered>
-**Risk accepted:** <none, or the gate question that was deflected>
-**Unlocks / invalidates:** <tickets by name; fog graduated>
+**Risk carried:** <none, or the gating question the human deflected>
+**Unlocks / invalidates:** <tickets by name; fog turned into tickets>
 ```
 
-Assets (prototypes, research files, branches) are linked from the comment, never pasted in.
+Link assets (prototypes, research files, branches) from the comment; do not paste them in.
 
-**Glossary and decision records.** When a resolution coins or redefines a term, or fixes a structural choice, add the term to the repo's glossary and the choice to its decision records, in whatever files the repo already keeps for those (a `CONTEXT.md`, a `docs/adr/` folder, a decisions section in the README). A repo with neither gets a one-line entry in the map's Notes instead. Either way the record links the ticket, and the ticket stays canonical.
+**Terms and structural choices.** When a resolution coins or redefines a term, or fixes a structural choice, record it where the repo already records such things (a `CONTEXT.md`, a `docs/adr/` folder, a decisions section in the README). If the repo has nowhere for it, add one line to Ground rules. The record links the ticket; the ticket remains the source of truth.
 
-**Supersede, never rewrite.** A closed ticket's resolution is history. When a later decision overturns it, resolve the new ticket and mark the old line in Decisions so far `superseded by <name>`.
+**Overturned decisions.** A closed ticket is history: never edit its resolution. When a later decision overturns it, resolve the new ticket and mark the old line in Settled `superseded by <name>`.
 
-## Ticket Types
+## Ticket kinds
 
-Every ticket is **HITL** (worked with a human who speaks for themselves) or **AFK** (the agent alone). A HITL ticket resolves only through the live exchange. If the pop-up cannot be shown, or the human has said they are away, comment `waiting on human`, release the claim, and stop.
+A ticket is **attended** (the human is present and answers for themselves) or **unattended** (the agent works alone). An attended ticket resolves only through the live exchange. If the pop-up cannot be shown, or the human has said they are away, comment `waiting on human`, release the claim, and stop.
 
-- **Research** (AFK): facts from outside the working directory. Dispatch a subagent with an explicit `model` (default `sonnet`; Notes may override) and this brief: answer the ticket's question against **primary sources** (official docs, source code, specs, first-party APIs, the live product, web search for prior art), follow every claim to the source that owns it, cite each claim, and keep verified facts apart from inferences. It posts the findings as the ticket's Resolution comment, links any file it wrote, and closes the ticket. The map line is reconciled on the next load.
-- **Prototype** (HITL): raise the fidelity of the discussion with a cheap concrete artifact the human can react to. Dispatch a builder subagent with an explicit `model` (default `opus`) under these rules: throwaway and named so; one self-contained HTML file for a logic or state question, a few switchable variants on one route for a look-and-feel question; trivial to run; no persistence, tests or polish; the full state surfaced after every action. It commits on a throwaway branch, never main, and the resolution links the branch with the verdict. Use when "how should it look" or "how should it behave" is the question.
-- **Grilling** (HITL): conversation through Rounds. The default case.
-- **Task**: manual work that must happen before a decision can be made. The one type that does rather than decides, and it earns its place by unblocking a decision. AFK only when it touches nothing outside the repo and destroys nothing. Sign-ups, access, data moves, anything with money or credentials is HITL: walk the human through it one pop-up per step (do this now / done / skip / blocked), with the exact URL, click path and what to copy in each body. Secrets go straight from the human into `.env` or the secret store, never into a pop-up answer or a comment. The resolution records only the non-secret facts later tickets depend on: where a credential lives, new URLs, row counts.
+- **Research** (unattended): a fact from outside the working directory. Send a subagent with an explicit `model` (default `sonnet`; Ground rules may override) and this brief: answer the ticket's question from primary sources (official docs, source code, specs, first-party APIs, the live product, web search for prior art); trace every claim to the source that owns it and cite it; keep verified facts apart from inferences. The subagent posts its findings as the Resolution comment, links any file it wrote, and closes the ticket. The map line is added at the next reconcile.
+- **Prototype** (attended): make something cheap and concrete for the human to react to. Send a builder subagent with an explicit `model` (default `opus`) under these rules: throwaway and named as such; one self-contained HTML file for a logic or state question, a few switchable variants on one route for a look-and-feel question; runs with one command; no persistence, tests or polish; the full state shown after every action. The builder commits to a throwaway branch, never main. The resolution links the branch and records the verdict. Use when the question is how something should look or behave.
+- **Grilling** (attended): pop-up rounds. The default kind.
+- **Task**: work that has to happen before a decision can be made, such as getting access or moving data so its shape can be seen. The only kind that acts instead of deciding, and it exists only to unblock a decision. Unattended only when it touches nothing outside the repo and destroys nothing. Sign-ups, access grants, data moves, money and credentials are attended: walk the human through one pop-up per step (do this now / done / skip / blocked), with the exact URL, click path and value to copy in each body. Secrets go straight from the human into `.env` or the secret store, never into a pop-up answer or a comment. The resolution records only the non-secret facts later tickets need: where a credential lives, new URLs, row counts.
 
-## Fog of war
+## Fog
 
-The map is deliberately incomplete. Beyond the live tickets lies the **fog of war**: decisions you can tell are coming but cannot yet pin down. **Not yet specified** holds that dim view, as loosely or fully as the view allows. Resolving a ticket clears the fog ahead of it; graduate what is now specifiable into fresh tickets and clear it from the section.
+Leave the map incomplete on purpose. Beyond the live tickets are the questions you can sense but cannot yet phrase. Write those into Still foggy, as rough or as full as your view allows. Each resolution sharpens some of that fog; turn whatever is now sharp into tickets and delete it from the section.
 
-**Fog or ticket?** Ticket when you can state the question sharply now, even if it is blocked. Fog when you cannot. One patch of fog may graduate into several tickets, or none.
+Ticket or fog? Ticket when you can phrase the question precisely today, even if it is blocked. Fog when you cannot. One patch of fog may become several tickets, or none.
 
-## Out of scope
+## Ruled out
 
-The destination fixes the scope. Work beyond it is out of scope, not fog: it gets a line in **Out of scope** with why, and never graduates. When an existing ticket turns out to sit past the destination, close it and leave that line; it stays out of Decisions so far.
+The destination sets the scope. Anything beyond it is not fog; it is ruled out. Give it one line under Ruled out with the reason. It never becomes a ticket on this map; it would need a new destination and a new map. If an existing ticket turns out to lie beyond the destination, close it and leave that line. It stays out of Settled.
 
-## Invocation
+## Starting a map
 
-Two modes. Either way, resolve **one ticket per session**, research excepted. End every session by releasing any claim you still hold.
+Invoked with a loose idea.
 
-### Chart the map
+0. **Prior art and constraints**, unattended, before any question. One research subagent with an explicit `model` and the Research brief: who has built or solved this, how well, and what the repo already fixes (data shape, platform, pricing, legal). It returns a short brief. Ask nothing until it lands.
+1. **Name the destination** through pop-up rounds. Round 1 carries the kill question with the prior art in its body: proceed as framed / narrow it / redraw it / park. Recommend what the evidence supports. Record coined terms as the Terms rule says.
+2. **Survey the space** through rounds, wide rather than deep: surface every open decision and the first steps available now. If no fog appears, the effort fits one session and needs no map: one pop-up offers `/grill-me` then `/to-prd` right now, or stop.
+3. **Create the map** with the `mapout:map` label: Destination and Ground rules filled, fog written into Still foggy, the rest empty.
+4. **Create the tickets** you can phrase now, with kind labels, `mapout:attended` where needed, and the redraw line. Then a second pass to add blocking edges, since tickets need ids before they can point at each other.
+5. **Launch the research subagents**, one per research ticket, in parallel. They resolve their own tickets.
+6. **Stop.** Describe the map by name: destination, the ready tickets, the fog. The starting session resolves nothing by hand.
 
-User invokes with a loose idea.
+## Advancing a map
 
-0. **Prior art and constraints** (AFK, before any question). One research subagent with an explicit `model` and the Research brief above: who has built this or solved it, how well, and what the repo already fixes (data shape, platform, pricing, legal). It returns a short brief. Ask nothing until it lands.
-1. **Name the destination** through Rounds. Round 1 carries the kill question, with the prior art in its body: proceed as framed / narrow it to a smaller destination / redraw it / park. Recommend whichever the evidence supports. Record coined terms as the Glossary rule says.
-2. **Map the frontier** through Rounds, **breadth-first**: fan out across the whole space, surfacing the open decisions and the first steps takeable now. If this surfaces no fog, you do not need a map: one pop-up offers to run `/grill-me` then `/to-prd` in this session instead, or stop.
-3. **Create the map** (label `mapout:map`): Destination and Notes filled, fog sketched into Not yet specified, the rest empty.
-4. **Create the tickets** you can specify now, with type labels, `mapout:hitl` where it applies, and the Destination risk line. Wire blocking edges in a second pass.
-5. **Fire the research subagents**, one per research ticket, in parallel. They resolve their own tickets.
-6. **Stop.** Narrate the map by name: destination, the frontier, the fog. Charting hand-resolves nothing.
+Invoked with a map URL or number, and optionally a ticket.
 
-### Work through the map
+1. **Load the map** and reconcile.
+2. **Pick a ticket.** The named one, if given. Otherwise from the frontier: tickets that could redraw the destination first, then the ticket with the most tickets blocked behind it, then oldest. **Claim it.**
+3. **Resolve it.** Read at most five closed tickets for context, gist first, full body only when needed. Rounds for attended kinds; the kind's own rules otherwise. Load whatever Ground rules names.
+4. **Destination check.** If the answer undermines the destination, stop and ask: redraw / narrow / park the effort / continue with the risk recorded. A redraw edits Destination, re-runs step 2 of Starting a map on the affected area, and supersedes or rules out the invalidated tickets.
+5. **Confirm gate**, then record: Resolution comment, close, gist line on the map.
+6. **Move the frontier.** Create then wire any new tickets; turn sharpened fog into tickets; supersede; rule out.
+7. **Finish line.** When the frontier is empty and Still foggy is empty, the map is done. One pop-up: hand off to `/to-prd` (Recommended when the destination is a spec) / `/to-issues` / mark the change done in place / park. Write the outcome as the last line of Destination with a link, and close the map. Parked is also a close, with the reason.
 
-User invokes with a map (URL or number). A ticket is optional.
-
-1. **Load the map** and reconcile closed children into Decisions so far.
-2. **Choose the ticket.** The user's, if named. Otherwise from the frontier: Destination risk high first, then the ticket the most others are blocked by, then creation order. **Claim it.**
-3. **Resolve it.** Zoom into at most five closed tickets, gist first, body on demand. Rounds for HITL types; the type's own rules otherwise. Consult whatever Notes names.
-4. **Destination check.** If the answer undermines the destination, stop resolving and ask: redraw / narrow / park the effort / continue with the risk recorded. A redraw edits Destination, re-runs chart step 2 on the affected area, and supersedes or rules out the invalidated tickets.
-5. **Confirm gate**, then record: Resolution comment, close, map line.
-6. **Advance the frontier.** Create then wire newly surfaced tickets; graduate fog; supersede; rule out of scope.
-7. **Finish line.** Frontier empty and Not yet specified empty means the map is done. One pop-up: hand off to `/to-prd` (Recommended when the destination is a spec) / `/to-issues` / mark the change done in place / park. Record the outcome as the last line of Destination with a link, and close the map. Parked is a close too, with the reason.
+Whatever happens, end the session by releasing any claim you still hold.

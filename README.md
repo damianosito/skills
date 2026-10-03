@@ -166,16 +166,16 @@ To update an installed copy:
 
 ## Mapout
 
-`mapout` plans an effort too big for one agent session. It charts the effort as a map issue with child decision tickets on the repository's issue tracker. Each later session claims one ticket, resolves it with the human, records the decision, and stops. Questions reach the human as pop-ups with up to four options, one recommended, and an Other field for typing.
+`mapout` plans an effort too big for one agent session. It turns the effort into a map issue with decision tickets underneath it on the repository's issue tracker. Each later session claims one ticket, resolves it with the human, records the decision, and stops. Questions reach the human as pop-ups with up to four options, one recommended, and an Other field for typing. It is self-contained: no plugin or other skill is required.
 
-It is self-contained: no plugin or other skill is required. It started from Matt Pocock's `wayfinder` under the MIT Licence; his notice is kept in [`mapout/LICENSE`](mapout/LICENSE). What mapout does differently:
+What it does:
 
-- Pop-up rounds instead of questions written into the chat, with a confirm gate before anything is written to the tracker.
-- A measured adversarial posture: prior-art research before the first question, one kill question when the destination is named, one challenge per round, one pushback per hand-wave, and parking as a valid outcome.
-- A finish line: when the frontier and the fog are both empty the map closes through a handoff pop-up.
-- Safer parallel sessions: claims are released at session end, stale claims expire, and every load reconciles closed tickets into the map.
-- A fixed resolution format, decisions superseded rather than rewritten, and external tasks walked through with a human, secrets never passing through the agent.
-- Its own research brief, prototype rules and glossary rule, and a tracker fallback: GitHub issues through `gh`, then local markdown.
+- Pop-up rounds, with a confirm gate before anything is written to the tracker.
+- Measured pushback: prior-art research before the first question, a kill question when the destination is named, one challenge per round, one pushback per hand-wave, and parking as a valid outcome.
+- A finish line: when no tickets and no fog remain, the map closes through a handoff pop-up.
+- Safe parallel sessions: claims are released at session end, abandoned claims expire, and every session start reconciles closed tickets into the map.
+- A fixed resolution format, overturned decisions superseded rather than rewritten, and manual tasks walked through with the human, secrets never passing through the agent.
+- A tracker fallback: GitHub issues through `gh`, then local markdown.
 
 ### Requirements
 
@@ -196,13 +196,13 @@ YOUR-REPOSITORY/.claude/skills/mapout/
 
 ### Use
 
-Chart a map from a loose idea. The session charts and stops:
+Start a map from a loose idea. The session charts the map and stops:
 
 ```text
 /mapout <an idea too big for one session>
 ```
 
-Work one ticket from an existing map. The session resolves one ticket and stops; run one session per ticket, and run unblocked tickets in parallel:
+Advance an existing map. The session resolves one ticket and stops; run one session per ticket, and run ready tickets in parallel:
 
 ```text
 /mapout <map issue URL or number>
@@ -225,7 +225,6 @@ business-idea-feasibility/
 mapout/
 |-- SKILL.md
 |-- trackers.md
-|-- LICENSE
 `-- agents/
     `-- openai.yaml
 ```

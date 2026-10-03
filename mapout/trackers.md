@@ -1,30 +1,36 @@
 # Trackers for mapout
 
-Pick the first that applies, unless the map's Notes name a tracker.
+Use the first that applies, unless the map's Ground rules name a tracker.
 
-## GitHub (the repo has a GitHub remote and `gh auth status` succeeds)
+## GitHub
 
-The map is a single issue with child issues as tickets.
+Applies when the repo has a GitHub remote and `gh auth status` succeeds. Map and tickets are issues; tickets are sub-issues of the map. `<o>/<r>` is owner/repo.
 
-- **Map**: `gh issue create --label mapout:map`. Create missing labels first: `gh label create mapout:map`, one per `mapout:<type>`, and `mapout:hitl`.
-- **Child ticket**: a GitHub sub-issue of the map. Add it with the sub-issues endpoint: `gh api --method POST repos/<owner>/<repo>/issues/<map>/sub_issues -F sub_issue_id=<child-db-id>`, where the db id comes from `gh api repos/<owner>/<repo>/issues/<n> --jq .id`. Where sub-issues are off, put `Part of #<map>` at the top of the child body and add the child to a task list in the map body.
-- **Blocking**: native issue dependencies. `gh api --method POST repos/<owner>/<repo>/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-db-id>` (database id, not `#number`). Open blockers show in `issue_dependencies_summary.blocked_by`. Fallback where dependencies are off: a `Blocked by: #<n>, #<n>` line at the top of the child body.
-- **Frontier**: list the map's children with `gh api repos/<owner>/<repo>/issues/<map>/sub_issues --jq '.[] | select(.state=="open") | {number,title,assignee,labels:[.labels[].name],blocked:.issue_dependencies_summary.blocked_by}'`, then drop any with `blocked > 0` or an assignee. Unattended runs also drop `mapout:hitl`.
-- **Claim**: `gh issue edit <n> --add-assignee @me`, then `gh issue comment <n> --body "claimed <ISO time>"`. Both before any work.
-- **Release**: `gh issue comment <n> --body "<where it got to>"`, then `gh issue edit <n> --remove-assignee @me`.
-- **Resolve**: `gh issue comment <n> --body-file <resolution.md>`, `gh issue close <n>`, then append the gist line to the map body (`gh issue view <map> --json body` immediately before `gh issue edit <map> --body-file`).
-- **Reconcile on load**: closed children (`gh issue list --state closed`, scoped to the map) whose titles are absent from Decisions so far get a gist line from the Decision line of their last comment.
+| Operation | How |
+|---|---|
+| Labels | `gh label create` for `mapout:map`, `mapout:research`, `mapout:prototype`, `mapout:grilling`, `mapout:task` and `mapout:attended` when missing |
+| Create map | `gh issue create --label mapout:map --title "<name>" --body-file map.md` |
+| Create ticket | `gh issue create --label mapout:<kind> ...`, then attach it: `gh api --method POST repos/<o>/<r>/issues/<map>/sub_issues -F sub_issue_id=<ticket db id>`. The db id comes from `gh api repos/<o>/<r>/issues/<n> --jq .id`. Without sub-issues: `Part of #<map>` as the first line of the ticket body, plus a task-list entry in the map body |
+| Block | `gh api --method POST repos/<o>/<r>/issues/<ticket>/dependencies/blocked_by -F issue_id=<blocker db id>`. Without dependencies: a `Blocked by: #<n>` line at the top of the ticket body |
+| Frontier | `gh api repos/<o>/<r>/issues/<map>/sub_issues --jq '.[] \| select(.state=="open") \| {number,title,assignee,labels:[.labels[].name],blocked:.issue_dependencies_summary.blocked_by}'`; keep rows with `blocked` 0 and no assignee; unattended runs also drop `mapout:attended` |
+| Claim | `gh issue edit <n> --add-assignee @me`, then `gh issue comment <n> --body "claimed <ISO time>"` |
+| Release | `gh issue comment <n> --body "<where it got to>"`, then `gh issue edit <n> --remove-assignee @me` |
+| Resolve | `gh issue comment <n> --body-file resolution.md`, `gh issue close <n>`, then `gh issue view <map> --json body` immediately before `gh issue edit <map> --body-file` with the gist line added |
+| Reconcile | closed sub-issues whose titles are missing from Settled: take the Decision line of the last comment and add a gist line |
 
-Pipe every `gh issue list` and `gh api` call through `head` or `--jq`; never dump whole bodies you will not read.
+Keep output small: `--jq` or `head` on every list and api call.
 
-## Local markdown (no GitHub remote, or `gh` not authenticated)
+## Local markdown
 
-The map is a file with one child file per ticket, under a gitignored `.scratch/`.
+Applies when there is no GitHub remote or `gh` is not signed in. Everything lives under a gitignored `.scratch/<effort>/`.
 
-- **Map**: `.scratch/<effort>/map.md`.
-- **Child ticket**: `.scratch/<effort>/issues/NN-<slug>.md`, numbered from `01`. Lines near the top: `Type: <research|prototype|grilling|task>`, `HITL: <yes|no>`, `Status: <open|claimed|resolved>`, `Claimed: <ISO time>`, `Destination risk: <high|low>`.
-- **Blocking**: `Blocked by: NN, NN` near the top. Unblocked when every listed file is `resolved`.
-- **Frontier**: files that are `open`, unblocked, and unclaimed; by the order in step 2 of Work through the map, then by number.
-- **Claim**: set `Status: claimed` and `Claimed:`; save before any work. **Release**: back to `open`, with a `## Progress` note.
-- **Resolve**: append the Resolution block, set `Status: resolved`, then append the gist line to `map.md`.
-- **Reconcile on load**: resolved files whose titles are absent from Decisions so far get a gist line.
+| Operation | How |
+|---|---|
+| Map | `.scratch/<effort>/map.md`, holding the map body |
+| Ticket | `.scratch/<effort>/tickets/NN-<slug>.md`, numbered from 01, with header lines `Kind:`, `Attended: yes/no`, `Status: open/claimed/resolved`, `Claimed: <ISO time>`, `Could redraw the destination: yes/no` |
+| Block | a `Blocked by: NN, NN` header line; ready when every listed ticket is `resolved` |
+| Frontier | tickets with `Status: open` and no unresolved blockers, ordered as in Advancing a map step 2, then by number |
+| Claim | set `Status: claimed` and `Claimed:`; save before any work |
+| Release | set `Status: open` and add a `## Progress` note |
+| Resolve | append the Resolution block, set `Status: resolved`, add the gist line to `map.md` |
+| Reconcile | resolved tickets whose titles are missing from Settled get a gist line |
