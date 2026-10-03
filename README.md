@@ -9,6 +9,7 @@ These skills package detailed workflows, evaluation rules, output formats, and e
 | Skill | What it does | Status |
 |---|---|---|
 | [`business-idea-feasibility`](business-idea-feasibility/) | Produces a researched Red, Amber, or Green feasibility study for a business, app, SaaS, marketplace, product, side-hustle, or startup idea. | Available |
+| [`mapout`](mapout/) | Maps out an effort too big for one agent session as decision tickets on the issue tracker, resolved one per session through pop-up questions. Claude Code only. | Available |
 
 ## Business Idea Feasibility
 
@@ -163,6 +164,50 @@ To update an installed copy:
 2. Replace the existing `business-idea-feasibility` folder with the new complete folder.
 3. Restart Codex if the updated skill is not detected automatically.
 
+## Mapout
+
+`mapout` plans an effort too big for one agent session. It turns the effort into a map issue with decision tickets underneath it on the repository's issue tracker. Each later session claims one ticket, resolves it with the human, records the decision, and stops. Questions reach the human as pop-ups with up to four options, one recommended, and an Other field for typing. It is self-contained: no plugin or other skill is required.
+
+What it does:
+
+- Pop-up rounds, with a confirm gate before anything is written to the tracker.
+- Measured pushback: prior-art research before the first question, a kill question when the destination is named, one challenge per round, one pushback per hand-wave, and parking as a valid outcome.
+- A finish line: when no tickets and no fog remain, the map closes through a handoff pop-up.
+- Safe parallel sessions: claims are released at session end, abandoned claims expire, and every session start reconciles closed tickets into the map.
+- A fixed resolution format, overturned decisions superseded rather than rewritten, and manual tasks walked through with the human, secrets never passing through the agent.
+- A tracker fallback: GitHub issues through `gh`, then local markdown.
+
+### Requirements
+
+- Claude Code. The pop-ups use its AskUserQuestion tool.
+- For the GitHub tracker: `gh` authenticated, with sub-issues and issue dependencies enabled on the repository.
+
+### Install
+
+Copy the `mapout` folder, including `SKILL.md` and `trackers.md`, to one of these locations. Restart Claude Code if `/mapout` does not appear.
+
+```text
+$HOME/.claude/skills/mapout/
+```
+
+```text
+YOUR-REPOSITORY/.claude/skills/mapout/
+```
+
+### Use
+
+Start a map from a loose idea. The session charts the map and stops:
+
+```text
+/mapout <an idea too big for one session>
+```
+
+Advance an existing map. The session resolves one ticket and stops; run one session per ticket, and run ready tickets in parallel:
+
+```text
+/mapout <map issue URL or number>
+```
+
 ## Repository Structure
 
 ```text
@@ -176,6 +221,12 @@ business-idea-feasibility/
     |-- example-red.md
     |-- example-amber.md
     `-- example-green.md
+
+mapout/
+|-- SKILL.md
+|-- trackers.md
+`-- agents/
+    `-- openai.yaml
 ```
 
 ## Limitations
