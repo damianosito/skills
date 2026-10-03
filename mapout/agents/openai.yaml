@@ -1,0 +1,5 @@
+interface:
+  display_name: "Mapout"
+  short_description: "Map out a large effort as decision tickets, resolved through pop-up questions"
+policy:
+  allow_implicit_invocation: false

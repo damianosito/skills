@@ -9,7 +9,7 @@ These skills package detailed workflows, evaluation rules, output formats, and e
 | Skill | What it does | Status |
 |---|---|---|
 | [`business-idea-feasibility`](business-idea-feasibility/) | Produces a researched Red, Amber, or Green feasibility study for a business, app, SaaS, marketplace, product, side-hustle, or startup idea. | Available |
-| [`wayfinder2`](wayfinder2/) | Plans an effort too big for one agent session as a map of decision tickets on the issue tracker, resolved one per session through pop-up questions. Claude Code only. | Available |
+| [`mapout`](mapout/) | Maps out an effort too big for one agent session as decision tickets on the issue tracker, resolved one per session through pop-up questions. Claude Code only. | Available |
 
 ## Business Idea Feasibility
 
@@ -164,35 +164,34 @@ To update an installed copy:
 2. Replace the existing `business-idea-feasibility` folder with the new complete folder.
 3. Restart Codex if the updated skill is not detected automatically.
 
-## Wayfinder2
+## Mapout
 
-`wayfinder2` plans an effort too big for one agent session. It charts the effort as a map issue with child decision tickets on the repository's issue tracker. Each later session claims one ticket, resolves it with the human, records the decision, and stops. Questions reach the human as pop-ups with up to four options, one recommended, and an Other field for typing.
+`mapout` plans an effort too big for one agent session. It charts the effort as a map issue with child decision tickets on the repository's issue tracker. Each later session claims one ticket, resolves it with the human, records the decision, and stops. Questions reach the human as pop-ups with up to four options, one recommended, and an Other field for typing.
 
-It is a fork of [`wayfinder`](https://github.com/mattpocock/skills) by Matt Pocock, used under the MIT Licence; his notice is kept in [`wayfinder2/LICENSE`](wayfinder2/LICENSE). Changes from the original:
+It is self-contained: no plugin or other skill is required. It started from Matt Pocock's `wayfinder` under the MIT Licence; his notice is kept in [`mapout/LICENSE`](mapout/LICENSE). What mapout does differently:
 
 - Pop-up rounds instead of questions written into the chat, with a confirm gate before anything is written to the tracker.
 - A measured adversarial posture: prior-art research before the first question, one kill question when the destination is named, one challenge per round, one pushback per hand-wave, and parking as a valid outcome.
 - A finish line: when the frontier and the fog are both empty the map closes through a handoff pop-up.
 - Safer parallel sessions: claims are released at session end, stale claims expire, and every load reconciles closed tickets into the map.
-- A fixed resolution format, decisions superseded rather than rewritten, and external tasks kept with a human.
-- A tracker fallback: the repository's tracker doc, then GitHub issues through `gh`, then local markdown.
+- A fixed resolution format, decisions superseded rather than rewritten, and external tasks walked through with a human, secrets never passing through the agent.
+- Its own research brief, prototype rules and glossary rule, and a tracker fallback: GitHub issues through `gh`, then local markdown.
 
 ### Requirements
 
 - Claude Code. The pop-ups use its AskUserQuestion tool.
-- Matt Pocock's skills plugin installed in Claude Code. Wayfinder2 calls its `domain-modeling`, `research`, `prototype` and `wizard` skills.
 - For the GitHub tracker: `gh` authenticated, with sub-issues and issue dependencies enabled on the repository.
 
 ### Install
 
-Copy the `wayfinder2` folder, including `SKILL.md` and `trackers.md`, to one of these locations. Restart Claude Code if `/wayfinder2` does not appear.
+Copy the `mapout` folder, including `SKILL.md` and `trackers.md`, to one of these locations. Restart Claude Code if `/mapout` does not appear.
 
 ```text
-$HOME/.claude/skills/wayfinder2/
+$HOME/.claude/skills/mapout/
 ```
 
 ```text
-YOUR-REPOSITORY/.claude/skills/wayfinder2/
+YOUR-REPOSITORY/.claude/skills/mapout/
 ```
 
 ### Use
@@ -200,13 +199,13 @@ YOUR-REPOSITORY/.claude/skills/wayfinder2/
 Chart a map from a loose idea. The session charts and stops:
 
 ```text
-/wayfinder2 <an idea too big for one session>
+/mapout <an idea too big for one session>
 ```
 
 Work one ticket from an existing map. The session resolves one ticket and stops; run one session per ticket, and run unblocked tickets in parallel:
 
 ```text
-/wayfinder2 <map issue URL or number>
+/mapout <map issue URL or number>
 ```
 
 ## Repository Structure
@@ -223,7 +222,7 @@ business-idea-feasibility/
     |-- example-amber.md
     `-- example-green.md
 
-wayfinder2/
+mapout/
 |-- SKILL.md
 |-- trackers.md
 |-- LICENSE
